@@ -1,10 +1,10 @@
 
-from turtle import title
-
 from fastapi import FastAPI, Request, HTTPException, status
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from httpx import request
+from starlette.exceptions import HTTPException as StarletteHTTPException
 
 
 app = FastAPI()
@@ -47,7 +47,7 @@ def post_page(request: Request, post_id: int):
                 "post.html",
                 {"post": post, "title": title[:50]}
             )
-    return templates.TemplateResponse(request, "error.html")
+    return templates.TemplateResponse(request, "error.html", {"message": "Post not found :("})
 
 @app.get("/api/posts")
 def get_posts() -> list[dict]:
