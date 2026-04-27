@@ -1,7 +1,11 @@
 
-from fastapi import FastAPI, Request
+from turtle import title
+
+from fastapi import FastAPI, Request, HTTPException, status
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+from httpx import request
+
 
 app = FastAPI()
 
@@ -33,6 +37,25 @@ def home(request: Request):
                                       "home.html", 
                                       {"posts": posts, "title": "Home"})
 
-@app.get("/api/post")
-def get_post() -> list[dict]:
+@app.get("/posts/{post_id}", include_in_schema=False)
+def post_page(request: Request, post_id: int):
+    for post in posts:
+        if post["id"] == post_id:
+            title = post['title']
+            return templates.TemplateResponse(
+                request,
+                "post.html",
+                {"post": post, "title": title[:50]}
+            )
+    return templates.TemplateResponse(request, "error.html")
+
+@app.get("/api/posts")
+def get_posts() -> list[dict]:
     return posts
+
+@app.get("/api/posts/{post_id}")
+def get_post(post_id: int):
+    for post in posts:
+        if post.get("id") == post_id:
+            return post
+    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Post not found")
