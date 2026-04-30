@@ -74,11 +74,10 @@ def user_post_page(request: Request, user_id: int, db: Annotated[Session, Depend
 
 
 @app.get("/api/posts", response_model=list[PostResponse])
-def get_posts(db: Annotated[Session, Depends[get_db]]) -> list[PostResponse]:
+def get_posts(db: Annotated[Session, Depends(get_db)]):
     result = db.execute(select(models.Post))
-    post = result.scalars().all()
-
-    return post
+    posts = result.scalars().all()
+    return posts
 
 @app.post(
     "api/users",
