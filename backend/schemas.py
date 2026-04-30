@@ -31,6 +31,11 @@ class PostCreate(PostBase):
     user_id: int # Temporary
 
 
+class PostUpdate(BaseModel):
+
+    title: str | None = Field(default=None, min_length=1, max_length=100)
+    content: str | None = Field(default=None, min_length=1)
+
 class PostResponse(PostBase):
 
     # Can read data from attributes
@@ -41,3 +46,5 @@ class PostResponse(PostBase):
     user_id: int
     date_posted: datetime
     author: UserResponse
+
+
