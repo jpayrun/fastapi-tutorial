@@ -37,7 +37,7 @@ def home(request: Request, db: Annotated[Session, Depends(get_db)]):
 
 @app.get("/posts/{post_id}", include_in_schema=False)
 def post_page(request: Request, post_id: int, db: Annotated[Session, Depends(get_db)]):
-    result = db.execute(select(models.Post).where(model.Post.id == post_id))
+    result = db.execute(select(models.Post).where(models.Post.id == post_id))
 
     post = result.scalars().first()
 
@@ -52,7 +52,7 @@ def post_page(request: Request, post_id: int, db: Annotated[Session, Depends(get
     # return templates.TemplateResponse(request, "error.html", {"message": "Post not found :("})
 
 
-@app.get("/user/{user_id}/posts", include_in_schema=False)
+@app.get("/user/{user_id}/posts", include_in_schema=False, name="user_posts")
 def user_post_page(request: Request, user_id: int, db: Annotated[Session, Depends(get_db)]):
     result = db.execute(select(models.User).where(models.User.id == user_id))
     user = result.scalars().first()
@@ -80,7 +80,7 @@ def get_posts(db: Annotated[Session, Depends(get_db)]):
     return posts
 
 @app.post(
-    "api/users",
+    "/api/users",
     response_model=UserResponse,
     status_code=status.HTTP_201_CREATED
 )
