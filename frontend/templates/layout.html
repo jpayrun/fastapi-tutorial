@@ -85,10 +85,9 @@
                                         type="button"
                                         data-bs-toggle="modal"
                                         data-bs-target="#createPostModal">New Post</button>
-                                <span id="usernameDisplay" class="navbar-text me-md-2"></span>
-                                <button class="btn btn-outline-light mb-2 mb-md-0 me-md-3"
-                                        type="button"
-                                        id="logoutBtn">Logout</button>
+                                <a class="btn btn-light mb-2 mb-md-0 me-md-3"
+                                href="{{ url_for("account_page") }}"
+                                id="accountBtn">Account</a>
                             </div>
                             <!-- Shown when logged out -->
                             <div id="loggedOutNav">
