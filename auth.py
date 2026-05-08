@@ -1,5 +1,7 @@
 
 from datetime import UTC, datetime, timedelta
+import hashlib
+import secrets
 from typing import Annotated
 from unittest import result
 
@@ -14,6 +16,7 @@ from config import settings
 from backend.database import get_db
 import backend.models as models
 
+
 password_hash = PasswordHash.recommended()
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/users/token")
@@ -24,6 +27,20 @@ def hash_password(password: str) -> str:
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     return password_hash.verify(plain_password, hashed_password)
 
+def generate_reset_token() -> str:
+    return secrets.token_urlsafe(32)
+
+def hash_reset_token(token: str) -> str:
+    """
+    Function takes a token and returns the sha256 token
+
+    Args:
+        token (str): The token to has
+
+    Returns:
+        str: The hashed token
+    """
+    return hashlib.sha256(token.encode()).hexdigest()
 
 def create_access_token(data: dict, expires_delta: timedelta | None = None) -> str:
     """

@@ -3,6 +3,8 @@ from datetime import datetime
 
 from pydantic import BaseModel, ConfigDict, Field, EmailStr
 
+pwd_field = Field(min_length=8, max_length=50)
+
 
 class UserBase(BaseModel):
     username: str = Field(min_length=1, max_length=50)
@@ -10,7 +12,7 @@ class UserBase(BaseModel):
 
 
 class UserCreate(UserBase):
-    password: str = Field(min_length=8, max_length=50)
+    password: str = pwd_field
 
 
 class UserPublic(BaseModel):
@@ -67,3 +69,17 @@ class PaginatedPostsResponse(BaseModel):
     skip: int
     limit: int
     has_more: bool
+
+
+class ForgotPasswordRequest(BaseModel):
+    email: EmailStr = Field(max_length=120)
+
+
+class ResetPasswordRequest(BaseModel):
+    token: str
+    new_password: str = pwd_field
+
+
+class ChangePasswordRequest(BaseModel):
+    current_password: str
+    new_password: str = pwd_field

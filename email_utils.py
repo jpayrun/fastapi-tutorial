@@ -1,20 +1,18 @@
-
 from email.message import EmailMessage
 
 import aiosmtplib
-from aiosmtplib.__main__ import hostname
 from fastapi.templating import Jinja2Templates
 
 from config import settings
 
-templates = Jinja2Templates(directory="frontend/templates")
+templates = Jinja2Templates(directory="templates")
 
 
 async def send_email(
-        to_email: str,
-        subject: str,
-        plain_text: str,
-        html_content: str | None = None,
+    to_email: str,
+    subject: str,
+    plain_text: str,
+    html_content: str | None = None,
 ) -> None:
     message = EmailMessage()
     message["From"] = settings.mail_from
@@ -26,13 +24,13 @@ async def send_email(
     if html_content:
         message.add_alternative(html_content, subtype="html")
 
-    await aiosmtplib(
+    await aiosmtplib.send(
         message,
         hostname=settings.mail_server,
         port=settings.mail_port,
-        username=settings.mail_username,
+        username=settings.mail_username or None,
         password=settings.mail_password.get_secret_value() or None,
-        start_tls=settings.mail_use_tls
+        start_tls=settings.mail_use_tls,
     )
 
 
