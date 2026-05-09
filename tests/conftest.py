@@ -74,3 +74,71 @@ async def db_session(
             await session.close()
             await trans.rollback()
             await conn.close()
+
+@pytest.fixture
+def mocked_aws():
+    # function to mock s3
+    with mock_aws():
+        s3 = boto3.client("s3", region_name="us-east-1")
+        s3.create_bucket(Bucket=os.environ["S3_BUCKET_NAME"])
+        yield s3
+
+@pytest.fixture
+async def client(
+    db_session: AsyncSession,
+    mocked_aws,
+) -> AsyncGenerator[AsyncClient]:
+
+    async def override_get_db():
+        yield db_session
+
+    # test session for the database
+    app.dependency_overrides[get_db] = override_get_db
+
+    # the async client that ties to the main app
+    async with AsyncClient(
+        # httpx makes the transactions for testing
+        # This test can be made in memory vs actual call
+        transport=ASGITransport(app=app),
+        base_url="http://test"
+    ) as ac:
+        yield ac
+
+    app.dependency_overrides.clear()
+
+async def create_test_user(
+    client: AsyncClient,
+    username: str = "testuser",
+    email: str = "test@example.com",
+    password: str = "testpassword123",
+) -> dict:
+    response = await client.post(
+        "/api/users",
+        json={
+            "username": username,
+            "email": email,
+            "password": password,
+        },
+    )
+    assert response.status_code == 201, f"Failed to create user: {response.text}"
+    return response.json()
+
+
+async def login_user(
+    client: AsyncClient,
+    email: str = "test@example.com",
+    password: str = "testpassword123",
+) -> str:
+    response = await client.post(
+        "/api/users/token",
+        data={
+            "username": email,
+            "password": password,
+        },
+    )
+    assert response.status_code == 200, f"Failed to login: {response.text}"
+    return response.json()["access_token"]
+
+
+def auth_header(token: str) -> dict[str, str]:
+    return {"Authorization": f"Bearer {token}"}
