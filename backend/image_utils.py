@@ -40,6 +40,7 @@ def process_profile_image(content: bytes) -> tuple[bytes, str]:
         output = BytesIO()
 
         img.save(output, "JPEG", quality=85, optimize=True)
+        output.seek(0)
     return output.read(), filename
 
 
@@ -54,7 +55,7 @@ def _upload_to_s3(file_byes: bytes, key: str) -> None:
 
 def _delete_from_s3(key: str) -> None:
     s3 = _get_s3_client()
-    s3.delete_object(Bucket=settings.s3_bucket_name, key=key)
+    s3.delete_object(Bucket=settings.s3_bucket_name, Key=key)
 
 async def upload_profile_image(file_bytes: bytes, filename: str) -> None:
     key = f"profile_pics/{filename}"
