@@ -9,20 +9,21 @@ from starlette.concurrency import run_in_threadpool
 from config import settings
 
 
-
 def _get_s3_client():
     return boto3.client(
         "s3",
         region_name=settings.s3_region,
-        aws_access_key_id={
+        aws_access_key_id=(
             settings.s3_access_key_id.get_secret_value()
-            if settings.s3_access_key_id else None
-        },
+            if settings.s3_access_key_id
+            else None
+        ),
         aws_secret_access_key=(
             settings.s3_secret_access_key.get_secret_value()
-            if settings.s3_secret_access_key else None
+            if settings.s3_secret_access_key
+            else None
         ),
-        endpoint_url=settings.s3_endpoint_url
+        endpoint_url=settings.s3_endpoint_url,
     )
 
 def process_profile_image(content: bytes) -> tuple[bytes, str]:
