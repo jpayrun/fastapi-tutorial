@@ -56,7 +56,7 @@ def _delete_from_s3(key: str) -> None:
     s3.delete_object(Bucket=settings.s3_bucket_name, key=key)
 
 async def upload_profile_image(file_bytes: bytes, filename: str) -> None:
-    key = f"profile_pic/{filename}"
+    key = f"profile_pics/{filename}"
     await run_in_threadpool(_upload_to_s3, file_bytes, key)
 
 async def delete_profile_image(filename: str | None) -> None:
